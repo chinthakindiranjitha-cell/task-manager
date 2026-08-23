@@ -13,6 +13,9 @@ import Navbar from "./components/Navbar.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Tasks from "./pages/Tasks.jsx";
+import CreateTask from "./pages/CreateTask.jsx";
+import EditTask from "./pages/EditTask.jsx";
 
 function App() {
   return (
@@ -45,6 +48,21 @@ function App() {
             <Route
               path="/dashboard"
               element={<Dashboard />}
+            />
+
+            <Route
+              path="/tasks"
+              element={<Tasks />}
+            />
+
+            <Route
+              path="/tasks/create"
+              element={<CreateTask />}
+            />
+
+            <Route
+              path="/tasks/:id/edit"
+              element={<EditTask />}
             />
           </Route>
         </Routes>
