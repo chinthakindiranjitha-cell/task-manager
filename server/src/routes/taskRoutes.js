@@ -10,11 +10,21 @@ import {
 
 import { protect } from "../middleware/authMiddleware.js";
 
+import {
+  createTaskValidation,
+  updateTaskValidation,
+  taskIdValidation
+} from "../middleware/taskValidation.js";
+
+import { validate } from "../middleware/validationMiddleware.js";
+
 const router = express.Router();
 
 router.post(
   "/",
   protect,
+  createTaskValidation,
+  validate,
   createTaskController
 );
 
@@ -27,18 +37,24 @@ router.get(
 router.get(
   "/:id",
   protect,
+  taskIdValidation,
+  validate,
   getTaskByIdController
 );
 
 router.put(
   "/:id",
   protect,
+  updateTaskValidation,
+  validate,
   updateTaskController
 );
 
 router.delete(
   "/:id",
   protect,
+  taskIdValidation,
+  validate,
   deleteTaskController
 );
 

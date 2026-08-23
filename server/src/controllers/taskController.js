@@ -8,8 +8,20 @@ import {
 
 export const createTaskController = async (req, res) => {
   try {
+    const {
+      title,
+      description,
+      status,
+      priority,
+      dueDate
+    } = req.body;
+
     const taskData = {
-      ...req.body,
+      title,
+      description,
+      status,
+      priority,
+      dueDate,
       createdBy: req.user._id
     };
 
@@ -80,12 +92,34 @@ export const getTaskByIdController = async (req, res) => {
 
 export const updateTaskController = async (req, res) => {
   try {
+    const {
+      title,
+      description,
+      status,
+      priority,
+      dueDate
+    } = req.body;
+
+    const taskData = {
+      title,
+      description,
+      status,
+      priority,
+      dueDate
+    };
+
+    Object.keys(taskData).forEach((key) => {
+      if (taskData[key] === undefined) {
+        delete taskData[key];
+      }
+    });
+
     const isAdmin = req.user.role === "admin";
 
     const task = await updateTask(
       req.params.id,
       req.user._id,
-      req.body,
+      taskData,
       isAdmin
     );
 

@@ -8,6 +8,16 @@ Content-Type: application/json
   "password": "passwordsahi123"
 }
 
+### Invalid Registration
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "wrong-email",
+  "password": "123"
+}
+
 
 ### Login User
 POST http://localhost:5000/api/auth/login
@@ -18,12 +28,23 @@ Content-Type: application/json
   "password": "passwordsahi123"
 }
 
+### Invalid Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "hello",
+  "password": ""
+}
 
 ### Get My Tasks
 GET http://localhost:5000/api/tasks
 
 ### Get task
 GET http://localhost:5000/api/tasks/6a8a9aa9f5df857152497853
+
+### Invalid Task ID
+GET http://localhost:5000/api/tasks/hello
 
 ### Create Task
 POST http://localhost:5000/api/tasks
@@ -36,6 +57,15 @@ Content-Type: application/json
   "priority": "high"
 }
 
+### Invalid Task
+POST http://localhost:5000/api/tasks
+Content-Type: application/json
+
+{
+  "title": "A",
+  "status": "finished",
+  "priority": "very-high"
+}
 
 ### Logout
 POST http://localhost:5000/api/auth/logout
