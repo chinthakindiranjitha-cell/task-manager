@@ -1,38 +1,55 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
+
+import { AuthProvider } from "./context/AuthContext.jsx";
+
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Navbar from "./components/Navbar.jsx";
+
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 
 function App() {
-  const [message, setMessage] = useState("Connecting to backend...");
-
-  useEffect(() => {
-    const getServerStatus = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/`
-        );
-
-        setMessage(response.data.message);
-      } catch (error) {
-        console.error(error);
-        setMessage("Backend connection failed");
-      }
-    };
-
-    getServerStatus();
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-lg p-10 text-center">
-        <h1 className="text-4xl font-bold text-blue-600 mb-4">
-          Task Manager
-        </h1>
+    <BrowserRouter>
+      <AuthProvider>
+        <Navbar />
 
-        <p className="text-lg text-gray-700">
-          {message}
-        </p>
-      </div>
-    </div>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to="/dashboard"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+
+          <Route
+            path="/register"
+            element={<Register />}
+          />
+
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path="/dashboard"
+              element={<Dashboard />}
+            />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

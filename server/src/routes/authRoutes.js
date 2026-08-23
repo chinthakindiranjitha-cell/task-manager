@@ -3,7 +3,8 @@ import express from "express";
 import {
   registerController,
   loginController,
-  logoutController
+  logoutController,
+  getCurrentUserController
 } from "../controllers/authController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -29,6 +30,12 @@ router.post(
   loginValidation,
   validate,
   loginController
+);
+
+router.get(
+  "/me",
+  protect,
+  getCurrentUserController
 );
 
 router.post(
