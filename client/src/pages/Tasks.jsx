@@ -6,6 +6,8 @@ import {
   deleteTask
 } from "../services/taskService.js";
 
+import getFileUrl from "../utils/fileUrl.js";
+
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,6 +155,19 @@ const Tasks = () => {
                   ).toLocaleDateString()}
                 </p>
               )}
+
+              {task.attachment?.fileUrl && (
+  <div className="mt-4">
+    <a
+      href={getFileUrl(task.attachment.fileUrl)}
+      target="_blank"
+      rel="noreferrer"
+      className="text-blue-600 hover:underline text-sm font-medium"
+    >
+      📎 View Attachment
+    </a>
+  </div>
+)}
 
               <div className="flex gap-3 mt-6">
                 <Link

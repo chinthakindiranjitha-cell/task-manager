@@ -27,6 +27,15 @@ export const createTaskController = asyncHandler(
       createdBy: req.user._id
     };
 
+    if (req.file) {
+      taskData.attachment = {
+        fileName: req.file.filename,
+        fileUrl: `/uploads/${req.file.filename}`,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size
+      };
+    }
+
     const task = await createTask(taskData);
 
     res.status(201).json({
@@ -94,6 +103,15 @@ export const updateTaskController = asyncHandler(
         delete taskData[key];
       }
     });
+
+    if (req.file) {
+      taskData.attachment = {
+        fileName: req.file.filename,
+        fileUrl: `/uploads/${req.file.filename}`,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size
+      };
+    }
 
     const isAdmin = req.user.role === "admin";
 

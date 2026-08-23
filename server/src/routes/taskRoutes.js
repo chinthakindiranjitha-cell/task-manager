@@ -18,11 +18,14 @@ import {
 
 import { validate } from "../middleware/validationMiddleware.js";
 
+import upload from "../middleware/uploadMiddleware.js";
+
 const router = express.Router();
 
 router.post(
   "/",
   protect,
+  upload.single("attachment"),
   createTaskValidation,
   validate,
   createTaskController
@@ -45,6 +48,7 @@ router.get(
 router.put(
   "/:id",
   protect,
+  upload.single("attachment"),
   updateTaskValidation,
   validate,
   updateTaskController

@@ -1,4 +1,5 @@
 import Task from "../models/Task.js";
+import "../models/User.js";
 import AppError from "../utils/AppError.js";
 
 export const createTask = async (taskData) => {

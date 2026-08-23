@@ -19,14 +19,25 @@ const CreateTask = () => {
     dueDate: ""
   });
 
+  const [attachment, setAttachment] =
+    useState(null);
+
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const handleChange = (event) => {
     setFormData({
       ...formData,
-      [event.target.name]: event.target.value
+      [event.target.name]:
+        event.target.value
     });
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    setAttachment(file || null);
   };
 
   const handleSubmit = async (event) => {
@@ -36,15 +47,43 @@ const CreateTask = () => {
       setLoading(true);
       setError("");
 
-      const taskData = {
-        ...formData
-      };
+      const data = new FormData();
 
-      if (!taskData.dueDate) {
-        delete taskData.dueDate;
+      data.append(
+        "title",
+        formData.title
+      );
+
+      data.append(
+        "description",
+        formData.description
+      );
+
+      data.append(
+        "status",
+        formData.status
+      );
+
+      data.append(
+        "priority",
+        formData.priority
+      );
+
+      if (formData.dueDate) {
+        data.append(
+          "dueDate",
+          formData.dueDate
+        );
       }
 
-      await createTask(taskData);
+      if (attachment) {
+        data.append(
+          "attachment",
+          attachment
+        );
+      }
+
+      await createTask(data);
 
       navigate("/tasks");
     } catch (error) {
@@ -90,7 +129,7 @@ const CreateTask = () => {
             value={formData.title}
             onChange={handleChange}
             placeholder="Enter task title"
-            className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border rounded-lg px-4 py-3"
             required
           />
         </div>
@@ -106,7 +145,7 @@ const CreateTask = () => {
             onChange={handleChange}
             placeholder="Enter task description"
             rows="5"
-            className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border rounded-lg px-4 py-3"
           />
         </div>
 
@@ -174,6 +213,29 @@ const CreateTask = () => {
             onChange={handleChange}
             className="w-full border rounded-lg px-4 py-3"
           />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-2">
+            Attachment
+          </label>
+
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept=".jpg,.jpeg,.png,.webp,.pdf,.txt"
+            className="w-full border rounded-lg px-4 py-3"
+          />
+
+          <p className="text-sm text-gray-500 mt-2">
+            JPG, PNG, WEBP, PDF or TXT — maximum 5 MB.
+          </p>
+
+          {attachment && (
+            <p className="text-sm text-gray-700 mt-2">
+              Selected: {attachment.name}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-4">

@@ -14,6 +14,8 @@ import {
   updateTask
 } from "../services/taskService.js";
 
+import getFileUrl from "../utils/fileUrl.js";
+
 const EditTask = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,9 +28,20 @@ const EditTask = () => {
     dueDate: ""
   });
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [attachment, setAttachment] =
+    useState(null);
+
+  const [currentAttachment, setCurrentAttachment] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [saving, setSaving] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -42,13 +55,18 @@ const EditTask = () => {
           title: task.title || "",
           description:
             task.description || "",
-          status: task.status || "pending",
+          status:
+            task.status || "pending",
           priority:
             task.priority || "medium",
           dueDate: task.dueDate
             ? task.dueDate.slice(0, 10)
             : ""
         });
+
+        setCurrentAttachment(
+          task.attachment || null
+        );
       } catch (error) {
         setError(
           error.response?.data?.message ||
@@ -65,8 +83,15 @@ const EditTask = () => {
   const handleChange = (event) => {
     setFormData({
       ...formData,
-      [event.target.name]: event.target.value
+      [event.target.name]:
+        event.target.value
     });
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    setAttachment(file || null);
   };
 
   const handleSubmit = async (event) => {
@@ -76,18 +101,43 @@ const EditTask = () => {
       setSaving(true);
       setError("");
 
-      const taskData = {
-        ...formData
-      };
+      const data = new FormData();
 
-      if (!taskData.dueDate) {
-        delete taskData.dueDate;
+      data.append(
+        "title",
+        formData.title
+      );
+
+      data.append(
+        "description",
+        formData.description
+      );
+
+      data.append(
+        "status",
+        formData.status
+      );
+
+      data.append(
+        "priority",
+        formData.priority
+      );
+
+      if (formData.dueDate) {
+        data.append(
+          "dueDate",
+          formData.dueDate
+        );
       }
 
-      await updateTask(
-        id,
-        taskData
-      );
+      if (attachment) {
+        data.append(
+          "attachment",
+          attachment
+        );
+      }
+
+      await updateTask(id, data);
 
       navigate("/tasks");
     } catch (error) {
@@ -142,7 +192,7 @@ const EditTask = () => {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border rounded-lg px-4 py-3"
             required
           />
         </div>
@@ -157,7 +207,7 @@ const EditTask = () => {
             value={formData.description}
             onChange={handleChange}
             rows="5"
-            className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border rounded-lg px-4 py-3"
           />
         </div>
 
@@ -225,6 +275,46 @@ const EditTask = () => {
             onChange={handleChange}
             className="w-full border rounded-lg px-4 py-3"
           />
+        </div>
+
+        {currentAttachment && (
+          <div className="bg-gray-50 rounded-lg p-4">
+            <p className="font-medium">
+              Current attachment
+            </p>
+
+            <a
+  href={getFileUrl(currentAttachment.fileUrl)}
+  target="_blank"
+  rel="noreferrer"
+  className="text-blue-600 hover:underline"
+>
+  {currentAttachment.fileName}
+</a>
+          </div>
+        )}
+
+        <div>
+          <label className="block font-medium mb-2">
+            Replace Attachment
+          </label>
+
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept=".jpg,.jpeg,.png,.webp,.pdf,.txt"
+            className="w-full border rounded-lg px-4 py-3"
+          />
+
+          <p className="text-sm text-gray-500 mt-2">
+            JPG, PNG, WEBP, PDF or TXT — maximum 5 MB.
+          </p>
+
+          {attachment && (
+            <p className="text-sm text-gray-700 mt-2">
+              New file: {attachment.name}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-4">

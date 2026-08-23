@@ -5,23 +5,34 @@ const taskSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+      minlength: 3,
+      maxlength: 100
     },
 
     description: {
       type: String,
-      trim: true
+      trim: true,
+      maxlength: 1000
     },
 
     status: {
       type: String,
-      enum: ["pending", "in-progress", "completed"],
+      enum: [
+        "pending",
+        "in-progress",
+        "completed"
+      ],
       default: "pending"
     },
 
     priority: {
       type: String,
-      enum: ["low", "medium", "high"],
+      enum: [
+        "low",
+        "medium",
+        "high"
+      ],
       default: "medium"
     },
 
@@ -30,8 +41,21 @@ const taskSchema = new mongoose.Schema(
     },
 
     attachment: {
-      type: String,
-      default: null
+      fileName: {
+        type: String
+      },
+
+      fileUrl: {
+        type: String
+      },
+
+      fileType: {
+        type: String
+      },
+
+      fileSize: {
+        type: Number
+      }
     },
 
     createdBy: {
@@ -45,6 +69,9 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-const Task = mongoose.model("Task", taskSchema);
+const Task = mongoose.model(
+  "Task",
+  taskSchema
+);
 
 export default Task;

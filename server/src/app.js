@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
@@ -10,6 +12,10 @@ import { notFound } from "./middleware/notFoundMiddleware.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
+const uploadDirectory = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../uploads"
+);
 
 app.use(
   cors({
@@ -23,12 +29,18 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
+
 app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "Task Manager API is running"
   });
 });
+
+app.use(
+  "/uploads",
+  express.static(uploadDirectory)
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
