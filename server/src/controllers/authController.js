@@ -3,8 +3,10 @@ import {
   loginUser
 } from "../services/authService.js";
 
-export const registerController = async (req, res) => {
-  try {
+import asyncHandler from "../utils/asyncHandler.js";
+
+export const registerController = asyncHandler(
+  async (req, res) => {
     const user = await registerUser(req.body);
 
     res.status(201).json({
@@ -17,18 +19,11 @@ export const registerController = async (req, res) => {
         role: user.role
       }
     });
-  } catch (error) {
-    console.error("Registration error:", error);
-
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Registration failed"
-    });
   }
-};
+);
 
-export const loginController = async (req, res) => {
-  try {
+export const loginController = asyncHandler(
+  async (req, res) => {
     const { email, password } = req.body;
 
     const { user, token } = await loginUser(
@@ -53,25 +48,20 @@ export const loginController = async (req, res) => {
         role: user.role
       }
     });
-  } catch (error) {
-    console.error("Login error:", error);
+  }
+);
 
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Login failed"
+export const logoutController = asyncHandler(
+  async (req, res) => {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax"
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Logout successful"
     });
   }
-};
-
-export const logoutController = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax"
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "Logout successful"
-  });
-};
+);

@@ -1,13 +1,22 @@
 import Task from "../models/Task.js";
+import AppError from "../utils/AppError.js";
 
 export const createTask = async (taskData) => {
   const task = await Task.create(taskData);
 
-  return task.populate("createdBy", "name email");
+  return task.populate(
+    "createdBy",
+    "name email"
+  );
 };
 
-export const getTasks = async (userId, isAdmin = false) => {
-  const filter = isAdmin ? {} : { createdBy: userId };
+export const getTasks = async (
+  userId,
+  isAdmin = false
+) => {
+  const filter = isAdmin
+    ? {}
+    : { createdBy: userId };
 
   const tasks = await Task.find(filter)
     .populate("createdBy", "name email")
@@ -34,9 +43,10 @@ export const getTaskById = async (
   );
 
   if (!task) {
-    const error = new Error("Task not found");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError(
+      "Task not found",
+      404
+    );
   }
 
   return task;
@@ -62,12 +72,16 @@ export const updateTask = async (
       new: true,
       runValidators: true
     }
-  ).populate("createdBy", "name email");
+  ).populate(
+    "createdBy",
+    "name email"
+  );
 
   if (!task) {
-    const error = new Error("Task not found");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError(
+      "Task not found",
+      404
+    );
   }
 
   return task;
@@ -85,12 +99,15 @@ export const deleteTask = async (
         createdBy: userId
       };
 
-  const task = await Task.findOneAndDelete(filter);
+  const task = await Task.findOneAndDelete(
+    filter
+  );
 
   if (!task) {
-    const error = new Error("Task not found");
-    error.statusCode = 404;
-    throw error;
+    throw new AppError(
+      "Task not found",
+      404
+    );
   }
 
   return task;

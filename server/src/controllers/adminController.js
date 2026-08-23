@@ -1,7 +1,8 @@
 import User from "../models/User.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
-export const getAllUsersController = async (req, res) => {
-  try {
+export const getAllUsersController = asyncHandler(
+  async (req, res) => {
     const users = await User.find().select("-password");
 
     res.status(200).json({
@@ -9,12 +10,5 @@ export const getAllUsersController = async (req, res) => {
       count: users.length,
       data: users
     });
-  } catch (error) {
-    console.error("Get users error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch users"
-    });
   }
-};
+);

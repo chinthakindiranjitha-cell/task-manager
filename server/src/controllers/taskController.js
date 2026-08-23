@@ -6,8 +6,10 @@ import {
   deleteTask
 } from "../services/taskService.js";
 
-export const createTaskController = async (req, res) => {
-  try {
+import asyncHandler from "../utils/asyncHandler.js";
+
+export const createTaskController = asyncHandler(
+  async (req, res) => {
     const {
       title,
       description,
@@ -32,18 +34,11 @@ export const createTaskController = async (req, res) => {
       message: "Task created successfully",
       data: task
     });
-  } catch (error) {
-    console.error("Create task error:", error);
-
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to create task"
-    });
   }
-};
+);
 
-export const getTasksController = async (req, res) => {
-  try {
+export const getTasksController = asyncHandler(
+  async (req, res) => {
     const isAdmin = req.user.role === "admin";
 
     const tasks = await getTasks(
@@ -56,18 +51,11 @@ export const getTasksController = async (req, res) => {
       count: tasks.length,
       data: tasks
     });
-  } catch (error) {
-    console.error("Get tasks error:", error);
-
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to fetch tasks"
-    });
   }
-};
+);
 
-export const getTaskByIdController = async (req, res) => {
-  try {
+export const getTaskByIdController = asyncHandler(
+  async (req, res) => {
     const isAdmin = req.user.role === "admin";
 
     const task = await getTaskById(
@@ -80,18 +68,11 @@ export const getTaskByIdController = async (req, res) => {
       success: true,
       data: task
     });
-  } catch (error) {
-    console.error("Get task error:", error);
-
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to fetch task"
-    });
   }
-};
+);
 
-export const updateTaskController = async (req, res) => {
-  try {
+export const updateTaskController = asyncHandler(
+  async (req, res) => {
     const {
       title,
       description,
@@ -128,18 +109,11 @@ export const updateTaskController = async (req, res) => {
       message: "Task updated successfully",
       data: task
     });
-  } catch (error) {
-    console.error("Update task error:", error);
-
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to update task"
-    });
   }
-};
+);
 
-export const deleteTaskController = async (req, res) => {
-  try {
+export const deleteTaskController = asyncHandler(
+  async (req, res) => {
     const isAdmin = req.user.role === "admin";
 
     await deleteTask(
@@ -152,12 +126,5 @@ export const deleteTaskController = async (req, res) => {
       success: true,
       message: "Task deleted successfully"
     });
-  } catch (error) {
-    console.error("Delete task error:", error);
-
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || "Failed to delete task"
-    });
   }
-};
+);
