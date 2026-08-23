@@ -1,28 +1,13 @@
-### Get all tasks
-GET http://localhost:5000/api/tasks
-
-
-### Create task
-POST http://localhost:5000/api/tasks
-Content-Type: application/json
-
-{
-  "title": "Learn MERN",
-  "description": "Build a complete MERN application",
-  "status": "pending",
-  "priority": "high",
-  "createdBy": "6a89e683829b994a2d4efb78"
-}
-
 ### Register User
 POST http://localhost:5000/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "Ranjitha",
-  "email": "ranjitha@example.com",
-  "password": "password123"
+  "name": "Shai",
+  "email": "sahi@example.com",
+  "password": "passwordsahi123"
 }
+
 
 ### Login User
 POST http://localhost:5000/api/auth/login
@@ -30,5 +15,25 @@ Content-Type: application/json
 
 {
   "email": "ranjitha@example.com",
-  "password": "pssword123"
+  "password": "password123"
 }
+
+
+### Get My Tasks
+GET http://localhost:5000/api/tasks
+
+
+### Create Task
+POST http://localhost:5000/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Learn CPP",
+  "description": "Build the complete CPP code",
+  "status": "pending",
+  "priority": "medium"
+}
+
+
+### Logout
+POST http://localhost:5000/api/auth/logout

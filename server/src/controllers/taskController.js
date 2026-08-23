@@ -5,7 +5,12 @@ import {
 
 export const createTaskController = async (req, res) => {
   try {
-    const task = await createTask(req.body);
+    const taskData = {
+      ...req.body,
+      createdBy: req.user._id
+    };
+
+    const task = await createTask(taskData);
 
     res.status(201).json({
       success: true,
@@ -24,7 +29,7 @@ export const createTaskController = async (req, res) => {
 
 export const getTasksController = async (req, res) => {
   try {
-    const tasks = await getTasks();
+    const tasks = await getTasks(req.user._id);
 
     res.status(200).json({
       success: true,

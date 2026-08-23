@@ -1,5 +1,4 @@
 import Task from "../models/Task.js";
-import "../models/User.js";
 
 export const createTask = async (taskData) => {
   const task = await Task.create(taskData);
@@ -7,8 +6,10 @@ export const createTask = async (taskData) => {
   return task;
 };
 
-export const getTasks = async () => {
-  const tasks = await Task.find()
+export const getTasks = async (userId) => {
+  const tasks = await Task.find({
+    createdBy: userId
+  })
     .populate("createdBy", "name email")
     .sort({ createdAt: -1 });
 

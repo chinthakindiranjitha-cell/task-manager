@@ -5,10 +5,12 @@ import {
   getTasksController
 } from "../controllers/taskController.js";
 
+import { protect } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
 
-router.post("/", createTaskController);
+router.get("/", protect, getTasksController);
 
-router.get("/", getTasksController);
+router.post("/", protect, createTaskController);
 
 export default router;
