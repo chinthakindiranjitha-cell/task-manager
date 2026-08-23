@@ -1,0 +1,15 @@
+### Get all tasks
+GET http://localhost:5000/api/tasks
+
+
+### Create task
+POST http://localhost:5000/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Learn MERN",
+  "description": "Build a complete MERN application",
+  "status": "pending",
+  "priority": "high",
+  "createdBy": "6a89e683829b994a2d4efb78"
+}

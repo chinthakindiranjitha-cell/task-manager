@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI is missing from server/.env");
+  }
+
   try {
     const connection = await mongoose.connect(process.env.MONGO_URI);
 
@@ -9,8 +13,8 @@ const connectDB = async () => {
     );
   } catch (error) {
     console.error("MongoDB connection failed");
-  console.error(error);
-  process.exit(1);
+    console.error(error.message);
+    process.exit(1);
   }
 };
 
