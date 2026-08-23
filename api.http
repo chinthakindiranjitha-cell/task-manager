@@ -13,3 +13,13 @@ Content-Type: application/json
   "priority": "high",
   "createdBy": "6a89e683829b994a2d4efb78"
 }
+
+### Register User
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ranjitha",
+  "email": "ranjitha@example.com",
+  "password": "password123"
+}
