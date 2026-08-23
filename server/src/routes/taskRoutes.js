@@ -2,15 +2,44 @@ import express from "express";
 
 import {
   createTaskController,
-  getTasksController
+  getTasksController,
+  getTaskByIdController,
+  updateTaskController,
+  deleteTaskController
 } from "../controllers/taskController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", protect, getTasksController);
+router.post(
+  "/",
+  protect,
+  createTaskController
+);
 
-router.post("/", protect, createTaskController);
+router.get(
+  "/",
+  protect,
+  getTasksController
+);
+
+router.get(
+  "/:id",
+  protect,
+  getTaskByIdController
+);
+
+router.put(
+  "/:id",
+  protect,
+  updateTaskController
+);
+
+router.delete(
+  "/:id",
+  protect,
+  deleteTaskController
+);
 
 export default router;

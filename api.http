@@ -14,24 +14,26 @@ POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "ranjitha@example.com",
-  "password": "password123"
+  "email": "sahi@example.com",
+  "password": "passwordsahi123"
 }
 
 
 ### Get My Tasks
 GET http://localhost:5000/api/tasks
 
+### Get task
+GET http://localhost:5000/api/tasks/6a8a9aa9f5df857152497853
 
 ### Create Task
 POST http://localhost:5000/api/tasks
 Content-Type: application/json
 
 {
-  "title": "Learn CPP",
-  "description": "Build the complete CPP code",
+    "title": "Learn React",
+  "description": "Build the frontend",
   "status": "pending",
-  "priority": "medium"
+  "priority": "high"
 }
 
 
@@ -40,3 +42,17 @@ POST http://localhost:5000/api/auth/logout
 
 ### Admin Users
 GET http://localhost:5000/api/admin/users
+
+### Update Task
+PUT http://localhost:5000/api/tasks/6a8a9903f5df857152497840
+Content-Type: application/json
+
+{
+  "title": "Learn React + Tailwind",
+  "description": "Build the frontend using React and Tailwind CSS",
+  "status": "in-progress",
+  "priority": "high"
+}
+
+### Delete Task
+DELETE http://localhost:5000/api/tasks/6a8aa88c6440bd7b43ab5a5c
