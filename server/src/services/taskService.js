@@ -1,5 +1,4 @@
 import Task from "../models/Task.js";
-import "../models/User.js";
 import AppError from "../utils/AppError.js";
 
 export const createTask = async (taskData) => {
@@ -13,17 +12,41 @@ export const createTask = async (taskData) => {
 
 export const getTasks = async (
   userId,
-  isAdmin = false
+  isAdmin = false,
+  page = 1,
+  limit = 6
 ) => {
   const filter = isAdmin
     ? {}
     : { createdBy: userId };
 
-  const tasks = await Task.find(filter)
-    .populate("createdBy", "name email")
-    .sort({ createdAt: -1 });
+  const skip = (page - 1) * limit;
 
-  return tasks;
+  const [tasks, totalTasks] = await Promise.all([
+    Task.find(filter)
+      .populate("createdBy", "name email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Task.countDocuments(filter)
+  ]);
+
+  const totalPages = Math.ceil(
+    totalTasks / limit
+  );
+
+  return {
+    tasks,
+    pagination: {
+      page,
+      limit,
+      totalTasks,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1
+    }
+  };
 };
 
 export const getTaskById = async (

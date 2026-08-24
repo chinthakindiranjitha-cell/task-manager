@@ -6,21 +6,45 @@ import {
   deleteTask
 } from "../services/taskService.js";
 
-import getFileUrl from "../utils/fileUrl.js";
-
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [deletingId, setDeletingId] = useState(null);
 
-  const fetchTasks = async () => {
+  const [pagination, setPagination] =
+    useState({
+      page: 1,
+      limit: 6,
+      totalTasks: 0,
+      totalPages: 0,
+      hasNextPage: false,
+      hasPreviousPage: false
+    });
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [deletingId, setDeletingId] =
+    useState(null);
+
+  const fetchTasks = async (
+    page = 1
+  ) => {
     try {
+      setLoading(true);
       setError("");
 
-      const response = await getTasks();
+      const response = await getTasks(
+        page,
+        pagination.limit
+      );
 
       setTasks(response.data);
+
+      setPagination(
+        response.pagination
+      );
     } catch (error) {
       setError(
         error.response?.data?.message ||
@@ -32,13 +56,22 @@ const Tasks = () => {
   };
 
   useEffect(() => {
-    fetchTasks();
+    fetchTasks(1);
   }, []);
 
-  const handleDelete = async (taskId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this task?"
-    );
+  const handlePageChange = (
+    newPage
+  ) => {
+    fetchTasks(newPage);
+  };
+
+  const handleDelete = async (
+    taskId
+  ) => {
+    const confirmed =
+      window.confirm(
+        "Are you sure you want to delete this task?"
+      );
 
     if (!confirmed) {
       return;
@@ -50,11 +83,32 @@ const Tasks = () => {
 
       await deleteTask(taskId);
 
-      setTasks((currentTasks) =>
-        currentTasks.filter(
-          (task) => task._id !== taskId
-        )
+      /*
+       * Reload the current page.
+       * If the last item on the page was deleted,
+       * move to the previous page when necessary.
+       */
+      const currentPage =
+        pagination.page;
+
+      const response = await getTasks(
+        currentPage,
+        pagination.limit
       );
+
+      if (
+        response.data.length === 0 &&
+        currentPage > 1
+      ) {
+        await fetchTasks(
+          currentPage - 1
+        );
+      } else {
+        setTasks(response.data);
+        setPagination(
+          response.pagination
+        );
+      }
     } catch (error) {
       setError(
         error.response?.data?.message ||
@@ -120,80 +174,150 @@ const Tasks = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks.map((task) => (
-            <div
-              key={task._id}
-              className="bg-white rounded-2xl shadow p-6"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <h2 className="text-xl font-bold">
-                  {task.title}
-                </h2>
+        <>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tasks.map((task) => (
+              <div
+                key={task._id}
+                className="bg-white rounded-2xl shadow p-6"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <h2 className="text-xl font-bold">
+                    {task.title}
+                  </h2>
 
-                <span className="text-xs font-semibold uppercase bg-gray-100 px-3 py-1 rounded-full">
-                  {task.priority}
-                </span>
-              </div>
+                  <span className="text-xs font-semibold uppercase bg-gray-100 px-3 py-1 rounded-full">
+                    {task.priority}
+                  </span>
+                </div>
 
-              <p className="text-gray-600 mt-4 min-h-12">
-                {task.description ||
-                  "No description"}
-              </p>
-
-              <div className="mt-5">
-                <span className="inline-block rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-sm font-medium">
-                  {task.status}
-                </span>
-              </div>
-
-              {task.dueDate && (
-                <p className="text-sm text-gray-500 mt-4">
-                  Due:{" "}
-                  {new Date(
-                    task.dueDate
-                  ).toLocaleDateString()}
+                <p className="text-gray-600 mt-4 min-h-12">
+                  {task.description ||
+                    "No description"}
                 </p>
-              )}
 
-              {task.attachment?.fileUrl && (
-  <div className="mt-4">
-    <a
-      href={getFileUrl(task.attachment.fileUrl)}
-      target="_blank"
-      rel="noreferrer"
-      className="text-blue-600 hover:underline text-sm font-medium"
-    >
-      📎 View Attachment
-    </a>
-  </div>
-)}
+                <div className="mt-5">
+                  <span className="inline-block rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-sm font-medium">
+                    {task.status}
+                  </span>
+                </div>
 
-              <div className="flex gap-3 mt-6">
-                <Link
-                  to={`/tasks/${task._id}/edit`}
-                  className="flex-1 text-center bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg"
-                >
-                  Edit
-                </Link>
+                {task.dueDate && (
+                  <p className="text-sm text-gray-500 mt-4">
+                    Due:{" "}
+                    {new Date(
+                      task.dueDate
+                    ).toLocaleDateString()}
+                  </p>
+                )}
 
-                <button
-                  onClick={() =>
-                    handleDelete(task._id)
-                  }
-                  disabled={
-                    deletingId === task._id
-                  }
-                  className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white py-2 rounded-lg"
-                >
-                  {deletingId === task._id
-                    ? "Deleting..."
-                    : "Delete"}
-                </button>
+                {task.attachment && (
+                  <div className="mt-4">
+                    <a
+                      href={`http://localhost:5000${task.attachment.fileUrl}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 hover:underline text-sm font-medium"
+                    >
+                      📎 View Attachment
+                    </a>
+                  </div>
+                )}
+
+                <div className="flex gap-3 mt-6">
+                  <Link
+                    to={`/tasks/${task._id}/edit`}
+                    className="flex-1 text-center bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg"
+                  >
+                    Edit
+                  </Link>
+
+                  <button
+                    onClick={() =>
+                      handleDelete(
+                        task._id
+                      )
+                    }
+                    disabled={
+                      deletingId ===
+                      task._id
+                    }
+                    className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white py-2 rounded-lg"
+                  >
+                    {deletingId ===
+                    task._id
+                      ? "Deleting..."
+                      : "Delete"}
+                  </button>
+                </div>
               </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <button
+              onClick={() =>
+                handlePageChange(
+                  pagination.page - 1
+                )
+              }
+              disabled={
+                !pagination.hasPreviousPage
+              }
+              className="px-5 py-2 rounded-lg border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+            >
+              Previous
+            </button>
+
+            <div className="flex items-center gap-2">
+              {Array.from(
+                {
+                  length:
+                    pagination.totalPages
+                },
+                (_, index) =>
+                  index + 1
+              ).map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  onClick={() =>
+                    handlePageChange(
+                      pageNumber
+                    )
+                  }
+                  className={`w-10 h-10 rounded-lg ${
+                    pagination.page ===
+                    pageNumber
+                      ? "bg-blue-600 text-white"
+                      : "border hover:bg-gray-100"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+
+            <button
+              onClick={() =>
+                handlePageChange(
+                  pagination.page + 1
+                )
+              }
+              disabled={
+                !pagination.hasNextPage
+              }
+              className="px-5 py-2 rounded-lg border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+            >
+              Next
+            </button>
+          </div>
+
+          <p className="text-center text-sm text-gray-500 mt-4">
+            Showing page {pagination.page}{" "}
+            of {pagination.totalPages}{" "}
+            ({pagination.totalTasks} tasks)
+          </p>
+        </>
       )}
     </div>
   );

@@ -13,7 +13,8 @@ import { protect } from "../middleware/authMiddleware.js";
 import {
   createTaskValidation,
   updateTaskValidation,
-  taskIdValidation
+  taskIdValidation,
+  paginationValidation
 } from "../middleware/taskValidation.js";
 
 import { validate } from "../middleware/validationMiddleware.js";
@@ -34,6 +35,8 @@ router.post(
 router.get(
   "/",
   protect,
+  paginationValidation,
+  validate,
   getTasksController
 );
 

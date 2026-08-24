@@ -24,8 +24,8 @@ POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "sahi@example.com",
-  "password": "passwordsahi123"
+  "email": "ranjitha@example.com",
+  "password": "password123"
 }
 
 ### Invalid Login
@@ -86,3 +86,6 @@ Content-Type: application/json
 
 ### Delete Task
 DELETE http://localhost:5000/api/tasks/6a8aa88c6440bd7b43ab5a5c
+
+### Page 1
+GET http://localhost:5000/api/tasks?page=1&limit=2

@@ -48,24 +48,32 @@ export const createTaskController = asyncHandler(
 
 export const getTasksController = asyncHandler(
   async (req, res) => {
-    const isAdmin = req.user.role === "admin";
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
 
-    const tasks = await getTasks(
+    const isAdmin =
+      req.user.role === "admin";
+
+    const result = await getTasks(
       req.user._id,
-      isAdmin
+      isAdmin,
+      page,
+      limit
     );
 
     res.status(200).json({
       success: true,
-      count: tasks.length,
-      data: tasks
+      count: result.tasks.length,
+      data: result.tasks,
+      pagination: result.pagination
     });
   }
 );
 
 export const getTaskByIdController = asyncHandler(
   async (req, res) => {
-    const isAdmin = req.user.role === "admin";
+    const isAdmin =
+      req.user.role === "admin";
 
     const task = await getTaskById(
       req.params.id,
@@ -113,7 +121,8 @@ export const updateTaskController = asyncHandler(
       };
     }
 
-    const isAdmin = req.user.role === "admin";
+    const isAdmin =
+      req.user.role === "admin";
 
     const task = await updateTask(
       req.params.id,
@@ -132,7 +141,8 @@ export const updateTaskController = asyncHandler(
 
 export const deleteTaskController = asyncHandler(
   async (req, res) => {
-    const isAdmin = req.user.role === "admin";
+    const isAdmin =
+      req.user.role === "admin";
 
     await deleteTask(
       req.params.id,
