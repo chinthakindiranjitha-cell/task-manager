@@ -16,6 +16,12 @@ const Tasks = () => {
   const [search, setSearch] =
     useState("");
 
+  const [status, setStatus] =
+    useState("");
+
+  const [priority, setPriority] =
+    useState("");
+
   const [pagination, setPagination] =
     useState({
       page: 1,
@@ -37,7 +43,9 @@ const Tasks = () => {
 
   const fetchTasks = async (
     page = 1,
-    searchValue = search
+    searchValue = search,
+    statusValue = status,
+    priorityValue = priority
   ) => {
     try {
       setLoading(true);
@@ -47,7 +55,9 @@ const Tasks = () => {
         await getTasks(
           page,
           pagination.limit,
-          searchValue
+          searchValue,
+          statusValue,
+          priorityValue
         );
 
       setTasks(response.data);
@@ -66,7 +76,12 @@ const Tasks = () => {
   };
 
   useEffect(() => {
-    fetchTasks(1, "");
+    fetchTasks(
+      1,
+      "",
+      "",
+      ""
+    );
   }, []);
 
   const handleSearch = (
@@ -74,13 +89,57 @@ const Tasks = () => {
   ) => {
     event.preventDefault();
 
-    fetchTasks(1, search);
+    fetchTasks(
+      1,
+      search,
+      status,
+      priority
+    );
   };
 
-  const handleClearSearch = () => {
-    setSearch("");
+  const handleStatusChange = (
+    event
+  ) => {
+    const newStatus =
+      event.target.value;
 
-    fetchTasks(1, "");
+    setStatus(newStatus);
+
+    fetchTasks(
+      1,
+      search,
+      newStatus,
+      priority
+    );
+  };
+
+  const handlePriorityChange = (
+    event
+  ) => {
+    const newPriority =
+      event.target.value;
+
+    setPriority(newPriority);
+
+    fetchTasks(
+      1,
+      search,
+      status,
+      newPriority
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setStatus("");
+    setPriority("");
+
+    fetchTasks(
+      1,
+      "",
+      "",
+      ""
+    );
   };
 
   const handlePageChange = (
@@ -88,7 +147,9 @@ const Tasks = () => {
   ) => {
     fetchTasks(
       newPage,
-      search
+      search,
+      status,
+      priority
     );
   };
 
@@ -117,7 +178,9 @@ const Tasks = () => {
         await getTasks(
           currentPage,
           pagination.limit,
-          search
+          search,
+          status,
+          priority
         );
 
       if (
@@ -126,7 +189,9 @@ const Tasks = () => {
       ) {
         await fetchTasks(
           currentPage - 1,
-          search
+          search,
+          status,
+          priority
         );
       } else {
         setTasks(response.data);
@@ -144,6 +209,11 @@ const Tasks = () => {
       setDeletingId(null);
     }
   };
+
+  const hasActiveFilters =
+    search ||
+    status ||
+    priority;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -166,12 +236,12 @@ const Tasks = () => {
         </Link>
       </div>
 
-      {/* Search */}
+      {/* Search and Filters */}
       <form
         onSubmit={handleSearch}
         className="bg-white rounded-2xl shadow p-5 mb-8"
       >
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="grid md:grid-cols-4 gap-3">
           <input
             type="text"
             value={search}
@@ -181,27 +251,77 @@ const Tasks = () => {
               )
             }
             placeholder="Search tasks..."
-            className="flex-1 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
+          <select
+            value={status}
+            onChange={
+              handleStatusChange
+            }
+            className="border rounded-lg px-4 py-3"
           >
-            Search
-          </button>
+            <option value="">
+              All Statuses
+            </option>
 
-          {search && (
+            <option value="pending">
+              Pending
+            </option>
+
+            <option value="in-progress">
+              In Progress
+            </option>
+
+            <option value="completed">
+              Completed
+            </option>
+          </select>
+
+          <select
+            value={priority}
+            onChange={
+              handlePriorityChange
+            }
+            className="border rounded-lg px-4 py-3"
+          >
+            <option value="">
+              All Priorities
+            </option>
+
+            <option value="low">
+              Low
+            </option>
+
+            <option value="medium">
+              Medium
+            </option>
+
+            <option value="high">
+              High
+            </option>
+          </select>
+
+          <div className="flex gap-2">
             <button
-              type="button"
-              onClick={
-                handleClearSearch
-              }
-              className="bg-gray-200 hover:bg-gray-300 px-6 py-3 rounded-lg font-semibold"
+              type="submit"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold"
             >
-              Clear
+              Search
             </button>
-          )}
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={
+                  handleClearFilters
+                }
+                className="bg-gray-200 hover:bg-gray-300 px-4 py-3 rounded-lg font-semibold"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
       </form>
 
@@ -220,18 +340,18 @@ const Tasks = () => {
       ) : tasks.length === 0 ? (
         <div className="bg-white rounded-2xl shadow p-10 text-center">
           <h2 className="text-xl font-semibold">
-            {search
+            {hasActiveFilters
               ? "No matching tasks found"
               : "No tasks yet"}
           </h2>
 
           <p className="text-gray-600 mt-2 mb-6">
-            {search
-              ? "Try a different search term."
+            {hasActiveFilters
+              ? "Try changing your search or filters."
               : "Create your first task to get started."}
           </p>
 
-          {!search && (
+          {!hasActiveFilters && (
             <Link
               to="/tasks/create"
               className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg"

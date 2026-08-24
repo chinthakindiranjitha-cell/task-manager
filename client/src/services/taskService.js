@@ -3,16 +3,31 @@ import api from "./api.js";
 export const getTasks = async (
   page = 1,
   limit = 4,
-  search = ""
+  search = "",
+  status = "",
+  priority = ""
 ) => {
+  const params = {
+    page,
+    limit
+  };
+
+  if (search) {
+    params.search = search;
+  }
+
+  if (status) {
+    params.status = status;
+  }
+
+  if (priority) {
+    params.priority = priority;
+  }
+
   const response = await api.get(
     "/api/tasks",
     {
-      params: {
-        page,
-        limit,
-        search
-      }
+      params
     }
   );
 

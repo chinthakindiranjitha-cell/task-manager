@@ -14,13 +14,16 @@ export const getTasks = async (
   userId,
   isAdmin = false,
   page = 1,
-  limit = 4,
-  search = ""
+  limit = 6,
+  search = "",
+  status = "",
+  priority = ""
 ) => {
   const filter = isAdmin
     ? {}
     : { createdBy: userId };
 
+  // Search filter
   if (search) {
     filter.$or = [
       {
@@ -36,6 +39,16 @@ export const getTasks = async (
         }
       }
     ];
+  }
+
+  // Status filter
+  if (status) {
+    filter.status = status;
+  }
+
+  // Priority filter
+  if (priority) {
+    filter.priority = priority;
   }
 
   const skip = (page - 1) * limit;

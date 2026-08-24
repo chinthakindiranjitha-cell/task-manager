@@ -115,10 +115,28 @@ export const paginationValidation = [
     .toInt(),
 
   query("search")
-    .optional()
-    .trim()
-    .isLength({ max: 100 })
-    .withMessage(
-      "Search cannot exceed 100 characters"
-    )
+  .optional({ checkFalsy: true })
+  .trim()
+  .isLength({ max: 100 })
+  .withMessage(
+    "Search cannot exceed 100 characters"
+  ),
+
+query("status")
+  .optional({ checkFalsy: true })
+  .isIn([
+    "pending",
+    "in-progress",
+    "completed"
+  ])
+  .withMessage("Invalid status filter"),
+
+query("priority")
+  .optional({ checkFalsy: true })
+  .isIn([
+    "low",
+    "medium",
+    "high"
+  ])
+  .withMessage("Invalid priority filter")
 ];

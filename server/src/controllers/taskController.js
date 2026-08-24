@@ -54,10 +54,16 @@ export const getTasksController = asyncHandler(
       Number(req.query.page) || 1;
 
     const limit =
-      Number(req.query.limit) || 4;
+      Number(req.query.limit) || 6;
 
     const search =
       req.query.search?.trim() || "";
+
+    const status =
+      req.query.status || "";
+
+    const priority =
+      req.query.priority || "";
 
     const isAdmin =
       req.user.role === "admin";
@@ -68,7 +74,9 @@ export const getTasksController = asyncHandler(
         isAdmin,
         page,
         limit,
-        search
+        search,
+        status,
+        priority
       );
 
     res.status(200).json({
