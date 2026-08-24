@@ -12,18 +12,16 @@ export const createTask = async (taskData) => {
 
 export const getTasks = async (
   userId,
-  isAdmin = false,
   page = 1,
   limit = 6,
   search = "",
   status = "",
   priority = ""
 ) => {
-  const filter = isAdmin
-    ? {}
-    : { createdBy: userId };
+  const filter = {
+    createdBy: userId
+  };
 
-  // Search filter
   if (search) {
     filter.$or = [
       {
@@ -41,12 +39,10 @@ export const getTasks = async (
     ];
   }
 
-  // Status filter
   if (status) {
     filter.status = status;
   }
 
-  // Priority filter
   if (priority) {
     filter.priority = priority;
   }
@@ -88,19 +84,12 @@ export const getTasks = async (
 
 export const getTaskById = async (
   taskId,
-  userId,
-  isAdmin = false
+  userId
 ) => {
-  const filter = isAdmin
-    ? { _id: taskId }
-    : {
-        _id: taskId,
-        createdBy: userId
-      };
-
-  const task = await Task.findOne(
-    filter
-  ).populate(
+  const task = await Task.findOne({
+    _id: taskId,
+    createdBy: userId
+  }).populate(
     "createdBy",
     "name email"
   );
@@ -118,19 +107,14 @@ export const getTaskById = async (
 export const updateTask = async (
   taskId,
   userId,
-  taskData,
-  isAdmin = false
+  taskData
 ) => {
-  const filter = isAdmin
-    ? { _id: taskId }
-    : {
-        _id: taskId,
-        createdBy: userId
-      };
-
   const task =
     await Task.findOneAndUpdate(
-      filter,
+      {
+        _id: taskId,
+        createdBy: userId
+      },
       taskData,
       {
         new: true,
@@ -153,18 +137,13 @@ export const updateTask = async (
 
 export const deleteTask = async (
   taskId,
-  userId,
-  isAdmin = false
+  userId
 ) => {
-  const filter = isAdmin
-    ? { _id: taskId }
-    : {
-        _id: taskId,
-        createdBy: userId
-      };
-
   const task =
-    await Task.findOneAndDelete(filter);
+    await Task.findOneAndDelete({
+      _id: taskId,
+      createdBy: userId
+    });
 
   if (!task) {
     throw new AppError(

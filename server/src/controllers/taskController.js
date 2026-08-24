@@ -8,8 +8,8 @@ import {
 
 import asyncHandler from "../utils/asyncHandler.js";
 
-export const createTaskController = asyncHandler(
-  async (req, res) => {
+export const createTaskController =
+  asyncHandler(async (req, res) => {
     const {
       title,
       description,
@@ -45,11 +45,10 @@ export const createTaskController = asyncHandler(
         "Task created successfully",
       data: task
     });
-  }
-);
+  });
 
-export const getTasksController = asyncHandler(
-  async (req, res) => {
+export const getTasksController =
+  asyncHandler(async (req, res) => {
     const page =
       Number(req.query.page) || 1;
 
@@ -65,13 +64,9 @@ export const getTasksController = asyncHandler(
     const priority =
       req.query.priority || "";
 
-    const isAdmin =
-      req.user.role === "admin";
-
     const result =
       await getTasks(
         req.user._id,
-        isAdmin,
         page,
         limit,
         search,
@@ -85,103 +80,84 @@ export const getTasksController = asyncHandler(
       data: result.tasks,
       pagination: result.pagination
     });
-  }
-);
+  });
 
 export const getTaskByIdController =
-  asyncHandler(
-    async (req, res) => {
-      const isAdmin =
-        req.user.role === "admin";
+  asyncHandler(async (req, res) => {
+    const task =
+      await getTaskById(
+        req.params.id,
+        req.user._id
+      );
 
-      const task =
-        await getTaskById(
-          req.params.id,
-          req.user._id,
-          isAdmin
-        );
-
-      res.status(200).json({
-        success: true,
-        data: task
-      });
-    }
-  );
+    res.status(200).json({
+      success: true,
+      data: task
+    });
+  });
 
 export const updateTaskController =
-  asyncHandler(
-    async (req, res) => {
-      const {
-        title,
-        description,
-        status,
-        priority,
-        dueDate
-      } = req.body;
+  asyncHandler(async (req, res) => {
+    const {
+      title,
+      description,
+      status,
+      priority,
+      dueDate
+    } = req.body;
 
-      const taskData = {
-        title,
-        description,
-        status,
-        priority,
-        dueDate
-      };
+    const taskData = {
+      title,
+      description,
+      status,
+      priority,
+      dueDate
+    };
 
-      Object.keys(taskData).forEach(
-        (key) => {
-          if (
-            taskData[key] === undefined
-          ) {
-            delete taskData[key];
-          }
+    Object.keys(taskData).forEach(
+      (key) => {
+        if (
+          taskData[key] === undefined
+        ) {
+          delete taskData[key];
         }
-      );
-
-      if (req.file) {
-        taskData.attachment = {
-          fileName: req.file.filename,
-          fileUrl: `/uploads/${req.file.filename}`,
-          fileType: req.file.mimetype,
-          fileSize: req.file.size
-        };
       }
+    );
 
-      const isAdmin =
-        req.user.role === "admin";
-
-      const task =
-        await updateTask(
-          req.params.id,
-          req.user._id,
-          taskData,
-          isAdmin
-        );
-
-      res.status(200).json({
-        success: true,
-        message:
-          "Task updated successfully",
-        data: task
-      });
+    if (req.file) {
+      taskData.attachment = {
+        fileName: req.file.filename,
+        fileUrl: `/uploads/${req.file.filename}`,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size
+      };
     }
-  );
 
-export const deleteTaskController =
-  asyncHandler(
-    async (req, res) => {
-      const isAdmin =
-        req.user.role === "admin";
-
-      await deleteTask(
+    const task =
+      await updateTask(
         req.params.id,
         req.user._id,
-        isAdmin
+        taskData
       );
 
-      res.status(200).json({
-        success: true,
-        message:
-          "Task deleted successfully"
-      });
-    }
-  );
+    res.status(200).json({
+      success: true,
+      message:
+        "Task updated successfully",
+      data: task
+    });
+  });
+
+export const deleteTaskController =
+  asyncHandler(async (req, res) => {
+    await deleteTask(
+      req.params.id,
+      req.user._id
+    );
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Task deleted successfully"
+    });
+  });

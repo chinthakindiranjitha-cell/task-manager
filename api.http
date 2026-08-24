@@ -8,18 +8,7 @@ Content-Type: application/json
   "password": "passwordsahi123"
 }
 
-### Invalid Registration
-POST http://localhost:5000/api/auth/register
-Content-Type: application/json
-
-{
-  "name": "",
-  "email": "wrong-email",
-  "password": "123"
-}
-
-
-### Login User
+### Login admin
 POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
@@ -28,14 +17,15 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### Invalid Login
+### Login user
 POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "hello",
-  "password": ""
+  "email": "sahi@example.com",
+  "password": "passwordsahi123"
 }
+
 
 ### Get My Tasks
 GET http://localhost:5000/api/tasks
