@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import helmet from "helmet";
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
@@ -17,9 +17,10 @@ const uploadDirectory = path.resolve(
   "../uploads"
 );
 
+app.use(helmet());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true
   })
 );
