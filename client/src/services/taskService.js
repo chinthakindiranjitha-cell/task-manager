@@ -2,14 +2,16 @@ import api from "./api.js";
 
 export const getTasks = async (
   page = 1,
-  limit = 6
+  limit = 4,
+  search = ""
 ) => {
   const response = await api.get(
     "/api/tasks",
     {
       params: {
         page,
-        limit
+        limit,
+        search
       }
     }
   );

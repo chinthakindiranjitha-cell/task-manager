@@ -89,3 +89,9 @@ DELETE http://localhost:5000/api/tasks/6a8aa88c6440bd7b43ab5a5c
 
 ### Page 1
 GET http://localhost:5000/api/tasks?page=1&limit=2
+
+### search
+GET http://localhost:5000/api/tasks?search=CANVA
+
+### search+ pagination
+GET http://localhost:5000/api/tasks?search=canva&page=1&limit=2

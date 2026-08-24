@@ -112,5 +112,13 @@ export const paginationValidation = [
     .withMessage(
       "Limit must be between 1 and 50"
     )
-    .toInt()
+    .toInt(),
+
+  query("search")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage(
+      "Search cannot exceed 100 characters"
+    )
 ];

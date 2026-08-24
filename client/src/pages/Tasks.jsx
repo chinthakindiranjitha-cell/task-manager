@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState
+} from "react";
+
 import { Link } from "react-router-dom";
 
 import {
@@ -9,10 +13,13 @@ import {
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
 
+  const [search, setSearch] =
+    useState("");
+
   const [pagination, setPagination] =
     useState({
       page: 1,
-      limit: 6,
+      limit: 4,
       totalTasks: 0,
       totalPages: 0,
       hasNextPage: false,
@@ -29,16 +36,19 @@ const Tasks = () => {
     useState(null);
 
   const fetchTasks = async (
-    page = 1
+    page = 1,
+    searchValue = search
   ) => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await getTasks(
-        page,
-        pagination.limit
-      );
+      const response =
+        await getTasks(
+          page,
+          pagination.limit,
+          searchValue
+        );
 
       setTasks(response.data);
 
@@ -56,13 +66,30 @@ const Tasks = () => {
   };
 
   useEffect(() => {
-    fetchTasks(1);
+    fetchTasks(1, "");
   }, []);
+
+  const handleSearch = (
+    event
+  ) => {
+    event.preventDefault();
+
+    fetchTasks(1, search);
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+
+    fetchTasks(1, "");
+  };
 
   const handlePageChange = (
     newPage
   ) => {
-    fetchTasks(newPage);
+    fetchTasks(
+      newPage,
+      search
+    );
   };
 
   const handleDelete = async (
@@ -83,28 +110,27 @@ const Tasks = () => {
 
       await deleteTask(taskId);
 
-      /*
-       * Reload the current page.
-       * If the last item on the page was deleted,
-       * move to the previous page when necessary.
-       */
       const currentPage =
         pagination.page;
 
-      const response = await getTasks(
-        currentPage,
-        pagination.limit
-      );
+      const response =
+        await getTasks(
+          currentPage,
+          pagination.limit,
+          search
+        );
 
       if (
         response.data.length === 0 &&
         currentPage > 1
       ) {
         await fetchTasks(
-          currentPage - 1
+          currentPage - 1,
+          search
         );
       } else {
         setTasks(response.data);
+
         setPagination(
           response.pagination
         );
@@ -118,16 +144,6 @@ const Tasks = () => {
       setDeletingId(null);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <p className="text-lg text-gray-600">
-          Loading tasks...
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -150,28 +166,79 @@ const Tasks = () => {
         </Link>
       </div>
 
+      {/* Search */}
+      <form
+        onSubmit={handleSearch}
+        className="bg-white rounded-2xl shadow p-5 mb-8"
+      >
+        <div className="flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            value={search}
+            onChange={(event) =>
+              setSearch(
+                event.target.value
+              )
+            }
+            placeholder="Search tasks..."
+            className="flex-1 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
+          >
+            Search
+          </button>
+
+          {search && (
+            <button
+              type="button"
+              onClick={
+                handleClearSearch
+              }
+              className="bg-gray-200 hover:bg-gray-300 px-6 py-3 rounded-lg font-semibold"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </form>
+
       {error && (
         <div className="mb-6 rounded-lg bg-red-100 p-4 text-red-700">
           {error}
         </div>
       )}
 
-      {tasks.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-10">
+          <p className="text-gray-600">
+            Loading tasks...
+          </p>
+        </div>
+      ) : tasks.length === 0 ? (
         <div className="bg-white rounded-2xl shadow p-10 text-center">
           <h2 className="text-xl font-semibold">
-            No tasks yet
+            {search
+              ? "No matching tasks found"
+              : "No tasks yet"}
           </h2>
 
           <p className="text-gray-600 mt-2 mb-6">
-            Create your first task to get started.
+            {search
+              ? "Try a different search term."
+              : "Create your first task to get started."}
           </p>
 
-          <Link
-            to="/tasks/create"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg"
-          >
-            Create Task
-          </Link>
+          {!search && (
+            <Link
+              to="/tasks/create"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg"
+            >
+              Create Task
+            </Link>
+          )}
         </div>
       ) : (
         <>
@@ -254,6 +321,7 @@ const Tasks = () => {
             ))}
           </div>
 
+          {/* Pagination */}
           <div className="mt-10 flex items-center justify-center gap-4">
             <button
               onClick={() =>
@@ -277,24 +345,28 @@ const Tasks = () => {
                 },
                 (_, index) =>
                   index + 1
-              ).map((pageNumber) => (
-                <button
-                  key={pageNumber}
-                  onClick={() =>
-                    handlePageChange(
+              ).map(
+                (pageNumber) => (
+                  <button
+                    key={
                       pageNumber
-                    )
-                  }
-                  className={`w-10 h-10 rounded-lg ${
-                    pagination.page ===
-                    pageNumber
-                      ? "bg-blue-600 text-white"
-                      : "border hover:bg-gray-100"
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              ))}
+                    }
+                    onClick={() =>
+                      handlePageChange(
+                        pageNumber
+                      )
+                    }
+                    className={`w-10 h-10 rounded-lg ${
+                      pagination.page ===
+                      pageNumber
+                        ? "bg-blue-600 text-white"
+                        : "border hover:bg-gray-100"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                )
+              )}
             </div>
 
             <button
@@ -313,9 +385,11 @@ const Tasks = () => {
           </div>
 
           <p className="text-center text-sm text-gray-500 mt-4">
-            Showing page {pagination.page}{" "}
-            of {pagination.totalPages}{" "}
-            ({pagination.totalTasks} tasks)
+            Showing page{" "}
+            {pagination.page} of{" "}
+            {pagination.totalPages}{" "}
+            ({pagination.totalTasks}{" "}
+            tasks)
           </p>
         </>
       )}
